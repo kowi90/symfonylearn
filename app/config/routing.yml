@@ -1,3 +1,11 @@
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
+
+_register:
+    path: /register
+    defaults: {_controller: UserBundle:Registration:index}
+
+_register_add:
+    path: /regadd
+    defaults: {_controller: UserBundle:Registration:add}
