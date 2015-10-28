@@ -2,16 +2,28 @@
 # http://symfony.com/doc/current/book/security.html
 security:
 
+    encoders:
+            UserBundle\Entity\User:
+                algorithm: bcrypt
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
         in_memory:
             memory: ~
+
+        user_provider:
+                    entity:
+                        class: UserBundle:User
+                        property: username
+                        # if you're using multiple entity managers
+                        # manager_name: customer
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+
 
         main:
             anonymous: ~

@@ -2,13 +2,18 @@
 namespace UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="Users")
+ * @UniqueEntity("email",message="Email adress already exists")
+ * @UniqueEntity("username",message="Username adress already exists")
  */
 
-class User
+class User implements UserInterface
 {
 
     /**
@@ -29,12 +34,23 @@ protected $email;
 protected $username;
 
      /**
-     * @ORM\Column(type="string", length=30)
+      * @ORM\Column(type="string", length=30)
+      * @Assert\Length(
+      *      min = 8,
+      *      minMessage = "Your password must be at least {{ limit }} characters long",
+      * )
      */
 protected $password;
-    
-    
-    
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+protected $created_date;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+protected $modified_date;
 
     /**
      * Get id
@@ -117,4 +133,68 @@ protected $password;
     {
         return $this->password;
     }
+
+
+    public function setCreatedDate($date)
+    {
+        $this->created_date = $date;
+    }
+
+    public function getCreatedDate()
+    {
+        return $this->created_date;
+    }
+
+    public function setModifiedDate($date)
+    {
+        $this->modified_date = $date;
+    }
+
+    public function getModifiedDate()
+    {
+        return $this->created_date;
+    }
+    
+
+    public function getSalt()
+    {
+        return null;
+    }
+
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    }
+
+    public function eraseCredentials()
+    {
+
+    }
+
+    /**
+     * @Assert\IsTrue(message="Password must contain small and big letters, numbers and special characters.")
+     */
+    public function isPasswordValid()
+    {
+        $bigLetters="ÖÜÓQWERTZUIOPÕÚASDFGHJKLÉÁÛÍYXCVBNM";
+        $smallLetters="öüóqwertzuiopõúasdfghjkléáûíyxcvbnm";
+        $numbers="0123456789";
+        $specials="_.,;?*";
+
+        for ($i=0;$i<strlen($this->password);$i++)
+        {
+           $current = substr ( $this->password , $i ,1 );
+
+            if (strstr($bigLetters,$current) != false)   $bigLetters=true;
+            if (strstr($smallLetters,$current) != false) $smallLetters=true;
+            if (strstr($numbers,$current) != false)      $numbers=true;
+            if (strstr($specials,$current) != false)     $specials=true;
+        }
+
+        return ($bigLetters === true &&
+                $smallLetters === true &&
+                $numbers === true &&
+                $specials === true) ?true:false;
+    }
+
 }
